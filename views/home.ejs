@@ -5,8 +5,10 @@
 <p><%= homeStartingContentValue %></p>
 
 <% storedPosts.forEach(function(storedPost){ %>
-    <h1>  <a href="/posts/<%= storedPost.title %>"><%= storedPost.title%> </a></h1>
-    <p ><%= storedPost.content.substring(0,100)+"..."%></p>
+    <h1><%= storedPost.title%></h1>
+    <p ><%= storedPost.content.substring(0,100)+"..."%>
+    <a href="/posts/<%= storedPost.title %>">Read more </a>
+    </p>
     
 <% }); %>
 
