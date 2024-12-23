@@ -7,7 +7,7 @@
 <% storedPosts.forEach(function(storedPost){ %>
     <h1><%= storedPost.title%></h1>
     <p ><%= storedPost.content.substring(0,100)+"..."%>
-    <a href="/posts/<%= storedPost.title %>">Read more </a>
+    <a href="/posts/<%= storedPost._id %>">Read more </a>
     </p>
     
 <% }); %>
