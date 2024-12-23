@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+const mongoose = require('mongoose');
 const _ = require("lodash");
 
 const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
@@ -8,17 +9,30 @@ const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pelle
 const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 
 const app = express();
-
+mongoose.connect("mongodb://localhost:27017/blogs");
 
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
-let posts=[];
+
+const postSchema=new mongoose.Schema({
+    title:String,
+    content:String
+});
+const post= mongoose.model("post",postSchema);
+
+
 
 app.get("/",function(req,res){
+    post.find({})
+    .then(posts=>{
+        res.render("home.ejs",{homeStartingContentValue:homeStartingContent ,storedPosts:posts});
+    })
+    .catch(err=>{
+        console.log(err);
+    })
     
-    res.render("home.ejs",{homeStartingContentValue:homeStartingContent ,storedPosts:posts});
    
 });
 
@@ -37,12 +51,12 @@ app.get("/compose",function(req,res){
 });
 
 app.post("/compose",function(req,res){
-   
-   const post={
-    title:req.body.postTitle,
+   const head =_.capitalize(req.body.postTitle);
+   const blog= new post({
+    title:head,
     content:req.body.postBody
-   }
-  posts.push(post);
+   });
+  blog.save();
   res.redirect("/");
    
 });
@@ -51,21 +65,22 @@ app.post("/compose",function(req,res){
 app.get("/posts/:topic",function(req,res){
    
     let found;
-    let findtitle=_.lowerCase(req.params.topic);
-
-    posts.forEach(function(storedPost){ 
-   
-         if(_.lowerCase(storedPost.title)===findtitle){
-            found=storedPost;
-        }
+    let findId=req.params.topic;
     
-        
-     });
-  if(found){
-    res.render("post.ejs",{postTitle:found.title,postcontent:found.content});}
-    else{
-        res.send("post not found");
-    }
+   
+    post.findById({_id:findId})
+    .then(blog=>{
+        if(blog){
+        res.render("post.ejs",{postTitle:blog.title,postcontent:blog.content});
+        }
+        else{
+            console.log("blog not found");
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+    });
+  
  });
 
 app.listen(3000, function() {
