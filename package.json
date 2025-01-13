@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+      "start": "nodemon server.js",
+    "check-server": "node -e \"const axios = require('axios'); axios.get('http://localhost:3000/status').then(response => { console.log('Server Status:', response.data); }).catch(error => { console.log('Error:', error.message); })\""
   },
   "author": "rahul chhajed",
   "license": "ISC",
